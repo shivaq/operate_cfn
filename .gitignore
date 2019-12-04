@@ -195,7 +195,7 @@ fabric.properties
 
 .idea/sonarlint/*
 
-
 # AWS
-aws.cfg
+aws.ini
 cp_to_home.sh
+operate_cfn.log*
