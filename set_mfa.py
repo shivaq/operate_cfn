@@ -1,5 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from pathlib import Path
+import sys
+import configparser
+from logging import getLogger, StreamHandler, FileHandler, Formatter, DEBUG, INFO
+from logging.handlers import RotatingFileHandler
+
+##################
+# configure logging
+##################
+logger = getLogger(__name__)
+logger.setLevel(INFO)
+# create console handler
+ch = StreamHandler()
+ch.setLevel(INFO)
+# create file handler
+rfh = RotatingFileHandler(
+    'operate_cfn.log', maxBytes=10485760, backupCount=1)
+rfh.setLevel(DEBUG)
+# create formatter and add it to the handlers
+formatter = Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+rfh.setFormatter(formatter)
+# add the handlers to logger
+logger.addHandler(ch)
+logger.addHandler(rfh)
+logger.propagate = False
 
 # TODO: set custom config file
 
