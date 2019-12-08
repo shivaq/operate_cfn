@@ -64,7 +64,6 @@ class AwsLogin:
         # \
         # input("Which account do you use?")
 
-
     # TODO: Get a role to switch from an argument
 
     # TODO: get session token
@@ -97,6 +96,13 @@ class AwsLogin:
             logger.error("There is no profile in your aws.ini.")
             exit(1)
 
+        input_num = self.ask_input_profile_num(str_profile, profile_list)
+        selected_section = profile_list[int(input_num) - 1]
+        print("You selected {}.\n".format(selected_section))
+        return selected_section
+
+    def ask_input_profile_num(self, str_profile, profile_list):
+        """Ask input for profile number"""
         print("Selectable profiles")
         is_valid_number = False
         while not is_valid_number:
@@ -113,14 +119,9 @@ class AwsLogin:
                     # Check if input is in range of profile position
                     if 1 <= int(input_num) <= len(profile_list):
                         print("Thank you.\n")
-                        is_number = True
-                        is_valid_number = True
+                        return input_num
                     else:
                         print("\nYou input a wrong number.\n")
-
-        selected_section = profile_list[int(input_num) - 1]
-        print("You selected {}.\n".format(selected_section))
-        return selected_section
 
     def ask_mfa_token(self, profile):
         """Prompt user input for mfa token"""
