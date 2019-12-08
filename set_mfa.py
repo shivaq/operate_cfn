@@ -27,44 +27,43 @@ logger.addHandler(ch)
 logger.addHandler(rfh)
 logger.propagate = False
 
-class AwsLogin():
 
+def get_cfg():
+    """Check custom config files"""
+
+    logger.debug("get_cfg is called")
+    home = Path.home()
+    custom_cfg_path = home / 'operate_cfn' / 'aws.ini'
+
+    if not custom_cfg_path.exists():
+        logger.error('{0} is not exist. Please create it.'.format(custom_cfg_path))
+        sys.exit(1)
+
+    return custom_cfg_path
+
+
+class AwsLogin:
     ##################
     # configure config file
     ##################
     Config = configparser.ConfigParser()
     Config._interpolation = configparser.ExtendedInterpolation()
 
-
     def __init__(self):
 
         # get a config file
-        self.Config.read(self.get_cfg())
+        self.Config.read(get_cfg())
         self.ask_profile()
 
-
-    def get_cfg(self):
-        """Check custom config files"""
-        logger.debug("get_cfg is called")
-        home = Path.home()
-        custom_cfg_path = home / 'operate_cfn' / 'aws.ini'
-
-        if not custom_cfg_path.exists():
-            logger.error('{0} is not exist. Please create it.'.format(custom_cfg_path))
-            sys.exit(1)
-
-        return custom_cfg_path
-
     def ask_profile(self):
+        """ Prompt user selected profile """
 
-        # Ask user to select profile number
+        # Prompt profile that user selected
         print("You use iam user {}".format(
             self.Config.get(self.select_profile(), "profile")))
         # print("Print value: {}".format(Config.get("SectionThree", "Charlie")))
         # \
         # input("Which account do you use?")
-
-
 
     # TODO: Get an MFA token from an argument
 
@@ -86,38 +85,37 @@ class AwsLogin():
 
     # TODO: Check Win or posix
 
-
     def select_profile(self):
         """provide profile selection to user input"""
 
-        sections = self.Config.sections()
+        section_list = self.Config.sections()
         str_profile = "profile"
-        profiles = []
+        profile_list = []
 
         # extract profile from sections
-        for section in sections:
+        for section in section_list:
             logger.debug(section)
             if section.startswith(str_profile):
-                profiles.append(section)
+                profile_list.append(section)
 
         print("Selectable profiles")
         # present profile number and name
-        for profile in profiles:
-            print(str(profiles.index(profile) + 1) + ") " + profile[len(str_profile) + 1:])
+        for profile in profile_list:
+            print(str(profile_list.index(profile) + 1) + ") " + profile[len(str_profile) + 1:])
 
         while True:
-            profile_num = input("Input the number of the profile and ENTER.  ")
-            if 1 <= int(profile_num) <= len(profiles):
+            input_num = input("Input the number of the profile and ENTER.  ")
+            if 1 <= int(input_num) <= len(profile_list):
                 print("Thank you.\n")
                 break
             else:
-                print("wrong number")
+                print("Your input is a wrong number.")
 
-        selected_profile = profiles[int(profile_num) - 1]
+        selected_profile = profile_list[int(input_num) - 1]
         print("You selected {}.\n".format(selected_profile))
         return selected_profile
 
     # def get_profile_section():
 
-aws_login = AwsLogin()
 
+aws_login = AwsLogin()
