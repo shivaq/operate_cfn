@@ -55,7 +55,6 @@ class AwsLogin:
         self.Config.read(get_cfg())
         profile_section = self.ask_profile_section()
         profile = self.Config.get(profile_section, "profile")
-
         print("You use iam user {}".format(profile))
 
         # self.check_mfa()
@@ -96,6 +95,11 @@ class AwsLogin:
             if section.startswith(str_profile):
                 profile_list.append(section)
 
+        # Check if there is profile
+        if not profile_list:
+            logger.error("There is no profile in your aws.ini.")
+            exit(1)
+
         print("Selectable profiles")
         is_valid_number = False
         while not is_valid_number:
@@ -105,9 +109,11 @@ class AwsLogin:
                 for profile in profile_list:
                     print(str(profile_list.index(profile) + 1) + ") " + profile[len(str_profile) + 1:])
                 input_num = input("Input the number of the profile and ENTER.  ")
+                # Check if input is num
                 if not input_num.isdecimal():
                     print("\nYou input {}. It's {}. Enter a number.\n".format(input_num, type(input_num)))
                 else:
+                    # Check if input is in range of profile position
                     if 1 <= int(input_num) <= len(profile_list):
                         print("Thank you.\n")
                         is_number = True
@@ -118,8 +124,6 @@ class AwsLogin:
         selected_section = profile_list[int(input_num) - 1]
         print("You selected {}.\n".format(selected_section))
         return selected_section
-
-    # def get_profile_section():
 
 
 aws_login = AwsLogin()
