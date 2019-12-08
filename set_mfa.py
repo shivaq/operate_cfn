@@ -56,19 +56,16 @@ class AwsLogin:
         profile_section = self.ask_profile_section()
         profile = self.Config.get(profile_section, "profile")
         print("You use iam user {}".format(profile))
+        mfa = self.Config.get(profile_section, "mfa")
+        mfa_token = self.ask_mfa_token(profile)
 
         # self.check_mfa()
         # print("Print value: {}".format(Config.get("SectionThree", "Charlie")))
         # \
         # input("Which account do you use?")
 
-    # TODO: Get an MFA token from an argument
 
     # TODO: Get a role to switch from an argument
-
-    # TODO: Check if the mfa token is int
-
-    # TODO: Check if the mfa is longer than 6
 
     # TODO: get session token
 
@@ -124,6 +121,22 @@ class AwsLogin:
         selected_section = profile_list[int(input_num) - 1]
         print("You selected {}.\n".format(selected_section))
         return selected_section
+
+    def ask_mfa_token(self, profile):
+        """Prompt user input for mfa token"""
+        logger.debug("Start ask_mfa_token().")
+        is_valid_number = False
+        while not is_valid_number:
+            is_number = False
+            while not is_number:
+                input_num = input(
+                    "Input MFA token for {} and ENTER.  ".format(profile))
+                # Check if input is num
+                if not input_num.isdecimal():
+                    print("\nYou input {}. It's {}. Enter a number.\n".format(
+                        input_num, type(input_num)))
+                else:
+                    return input_num
 
 
 aws_login = AwsLogin()
