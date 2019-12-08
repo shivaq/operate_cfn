@@ -53,14 +53,12 @@ class AwsLogin:
 
         # get a config file
         self.Config.read(get_cfg())
-        self.ask_profile()
+        profile_section = self.ask_profile_section()
+        profile = self.Config.get(profile_section, "profile")
 
-    def ask_profile(self):
-        """ Prompt user selected profile """
+        print("You use iam user {}".format(profile))
 
-        # Prompt profile that user selected
-        print("You use iam user {}".format(
-            self.Config.get(self.select_profile(), "profile")))
+        # self.check_mfa()
         # print("Print value: {}".format(Config.get("SectionThree", "Charlie")))
         # \
         # input("Which account do you use?")
@@ -85,8 +83,8 @@ class AwsLogin:
 
     # TODO: Check Win or posix
 
-    def select_profile(self):
-        """provide profile selection to user input"""
+    def ask_profile_section(self):
+        """ Prompt user selected profile """
 
         section_list = self.Config.sections()
         str_profile = "profile"
@@ -99,21 +97,27 @@ class AwsLogin:
                 profile_list.append(section)
 
         print("Selectable profiles")
-        # present profile number and name
-        for profile in profile_list:
-            print(str(profile_list.index(profile) + 1) + ") " + profile[len(str_profile) + 1:])
+        is_valid_number = False
+        while not is_valid_number:
+            is_number = False
+            while not is_number:
+                # present profile number and name
+                for profile in profile_list:
+                    print(str(profile_list.index(profile) + 1) + ") " + profile[len(str_profile) + 1:])
+                input_num = input("Input the number of the profile and ENTER.  ")
+                if not input_num.isdecimal():
+                    print("\nYou input {}. It's {}. Enter a number.\n".format(input_num, type(input_num)))
+                else:
+                    if 1 <= int(input_num) <= len(profile_list):
+                        print("Thank you.\n")
+                        is_number = True
+                        is_valid_number = True
+                    else:
+                        print("\nYou input a wrong number.\n")
 
-        while True:
-            input_num = input("Input the number of the profile and ENTER.  ")
-            if 1 <= int(input_num) <= len(profile_list):
-                print("Thank you.\n")
-                break
-            else:
-                print("Your input is a wrong number.")
-
-        selected_profile = profile_list[int(input_num) - 1]
-        print("You selected {}.\n".format(selected_profile))
-        return selected_profile
+        selected_section = profile_list[int(input_num) - 1]
+        print("You selected {}.\n".format(selected_section))
+        return selected_section
 
     # def get_profile_section():
 
