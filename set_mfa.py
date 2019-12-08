@@ -27,96 +27,97 @@ logger.addHandler(ch)
 logger.addHandler(rfh)
 logger.propagate = False
 
-##################
-# configure config file
-##################
-Config = configparser.ConfigParser()
-Config._interpolation = configparser.ExtendedInterpolation()
+class AwsLogin():
+
+    ##################
+    # configure config file
+    ##################
+    Config = configparser.ConfigParser()
+    Config._interpolation = configparser.ExtendedInterpolation()
 
 
-def get_cfg():
-    """Check custom config files"""
-    logger.debug("get_cfg is called")
+    def __init__(self):
 
-    home = Path.home()
-    custom_cfg_path = home / 'operate_cfn' / 'aws.ini'
-
-    if not custom_cfg_path.exists():
-        logger.error('{0} is not exist. Please create it.'.format(custom_cfg_path))
-        sys.exit(1)
-
-    return custom_cfg_path
+        # get a config file
+        self.Config.read(self.get_cfg())
+        self.ask_profile()
 
 
-# TODO: Get an mfa arn from custom config file
+    def get_cfg(self):
+        """Check custom config files"""
+        logger.debug("get_cfg is called")
+        home = Path.home()
+        custom_cfg_path = home / 'operate_cfn' / 'aws.ini'
 
-# TODO: get a config file from ~/.aws/config
+        if not custom_cfg_path.exists():
+            logger.error('{0} is not exist. Please create it.'.format(custom_cfg_path))
+            sys.exit(1)
 
-# TODO: Get profile from an argument
+        return custom_cfg_path
 
-# TODO: Get an MFA token from an argument
+    def ask_profile(self):
 
-# TODO: Get a role to switch from an argument
-
-# TODO: Use default profile and role only specify mfa code
-
-# TODO: Check if the profile exists
-
-# TODO: Check if the mfa token is int
-
-# TODO: Check if the mfa is longer than 6
-
-# TODO: get session token
-
-# TODO: Set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN on environment variables
-
-# TODO: Set AWS_SDK_LOAD_CONFIG=true
-
-# TODO: Set AWS_PROFILE
-
-# TODO: AWS_DEFAULT_REGION
-
-# TODO: Check Win or posix
+        # Ask user to select profile number
+        print("You use iam user {}".format(
+            self.Config.get(self.select_profile(), "profile")))
+        # print("Print value: {}".format(Config.get("SectionThree", "Charlie")))
+        # \
+        # input("Which account do you use?")
 
 
-def select_profile():
-    """provide profile selection to user input"""
 
-    sections = Config.sections()
-    str_profile = "profile"
-    profiles = []
+    # TODO: Get an MFA token from an argument
 
-    # extract profile from sections
-    for section in sections:
-        logger.debug(section)
-        if section.startswith(str_profile):
-            profiles.append(section)
+    # TODO: Get a role to switch from an argument
 
-    print("Selectable profiles")
-    # present profile number and name
-    for profile in profiles:
-        print(str(profiles.index(profile) + 1) + ") " + profile[len(str_profile) + 1:])
+    # TODO: Check if the mfa token is int
 
-    while True:
-        profile_num = input("Input the number of the profile and ENTER.  ")
-        if 1 <= int(profile_num) <= len(profiles):
-            print("Thank you.")
-            break
-        else:
-            print("wrong number")
+    # TODO: Check if the mfa is longer than 6
 
-    selected_profile = profiles[int(profile_num) - 1][len(str_profile) + 1:]
-    print("You selected {}.".format(selected_profile))
-    return selected_profile
+    # TODO: get session token
+
+    # TODO: Set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN on environment variables
+
+    # TODO: Set AWS_SDK_LOAD_CONFIG=true
+
+    # TODO: Set AWS_PROFILE
+
+    # TODO: AWS_DEFAULT_REGION
+
+    # TODO: Check Win or posix
 
 
-# get a config file
-Config.read(get_cfg())
+    def select_profile(self):
+        """provide profile selection to user input"""
 
-select_profile()
+        sections = self.Config.sections()
+        str_profile = "profile"
+        profiles = []
 
-# print("Print options: {}".format(Config.options("default")))
-# print("Print value: {}".format(Config.get("production", "test")))
-# print("Print value: {}".format(Config.get("SectionThree", "Charlie")))
+        # extract profile from sections
+        for section in sections:
+            logger.debug(section)
+            if section.startswith(str_profile):
+                profiles.append(section)
 
-# input("Which account do you use?")
+        print("Selectable profiles")
+        # present profile number and name
+        for profile in profiles:
+            print(str(profiles.index(profile) + 1) + ") " + profile[len(str_profile) + 1:])
+
+        while True:
+            profile_num = input("Input the number of the profile and ENTER.  ")
+            if 1 <= int(profile_num) <= len(profiles):
+                print("Thank you.\n")
+                break
+            else:
+                print("wrong number")
+
+        selected_profile = profiles[int(profile_num) - 1]
+        print("You selected {}.\n".format(selected_profile))
+        return selected_profile
+
+    # def get_profile_section():
+
+aws_login = AwsLogin()
+
