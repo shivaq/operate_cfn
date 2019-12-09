@@ -6,6 +6,8 @@ import configparser
 from logging import getLogger, StreamHandler, FileHandler, Formatter, DEBUG, INFO
 from logging.handlers import RotatingFileHandler
 import util_string
+import boto3
+import datetime
 
 ##################
 # configure logging
@@ -55,6 +57,8 @@ class AwsLogin:
         # get a config file
         with open(get_cfg()) as cfg:
             self.Config.read_file(cfg)
+
+        # get value from aws.ini
         profile_section = self.ask_profile_section()
         profile = util_string.remove_quotes(
             self.Config.get(profile_section, "profile"))
@@ -62,23 +66,35 @@ class AwsLogin:
         mfa_arn = util_string.remove_quotes(
             self.Config.get(profile_section, "mfa"))
         mfa_token = self.ask_mfa_token(profile)
+        role_to_switch = util_string.remove_quotes(
+            self.Config.get(profile_section, "role_to_switch"))
+        region = util_string.remove_quotes(
+            self.Config.get(profile_section, "region"))
 
-        # self.check_mfa()
-        # print("Print value: {}".format(Config.get("SectionThree", "Charlie")))
-        # \
-        # input("Which account do you use?")
+        # prepare session for aws
+        session = boto3.session.Session(profile_name=profile)
+        sts_client = session.client('sts')
 
-    # TODO: Get a role to switch from an argument
+        # Get session token
+        token_info = sts_client.get_session_token(
+            DurationSeconds=43200,  # 12 hours
+            SerialNumber=mfa_arn,
+            TokenCode=mfa_token
+        )
 
-    # TODO: get session token
+        with open("tmp_token", "a") as token:
+            token.write("export AWS_ACCESS_KEY_ID=" + token_info['Credentials']['AccessKeyId'] + "\n")
+            token.write("export AWS_SECRET_ACCESS_KEY=" +
+                        token_info['Credentials']['SecretAccessKey'] + "\n")
+            token.write("export AWS_SESSION_TOKEN=" +
+                        token_info['Credentials']['SessionToken'] + "\n")
+            token.write("export AWS_SECURITY_TOKEN=" +
+                        token_info['Credentials']['SessionToken'] + "\n")
+            token.write("export AWS_SDK_LOAD_CONFIG=true\n")
+            token.write("export AWS_PROFILE=" + role_to_switch + "\n")
+            token.write("export AWS_DEFAULT_REGION=" + region + "\n")
 
-    # TODO: Set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN on environment variables
-
-    # TODO: Set AWS_SDK_LOAD_CONFIG=true
-
-    # TODO: Set AWS_PROFILE
-
-    # TODO: AWS_DEFAULT_REGION
+        print("Please execute 'source tmp_token'")
 
     # TODO: Check Win or posix
 
@@ -115,7 +131,7 @@ class AwsLogin:
                 # present profile number and name
                 for profile in profile_list:
                     print(str(profile_list.index(profile) + 1) + ") " + profile[len(str_profile) + 1:])
-                input_num = input("Enter the number of the profile.")
+                input_num = input("Enter the number of the profile. ")
                 # Check if input is num
                 if not input_num.isdecimal():
                     print("\nYou input {}. It's {}. Enter a number.\n".format(input_num, type(input_num)))
@@ -135,7 +151,7 @@ class AwsLogin:
             is_number = False
             while not is_number:
                 input_num = input(
-                    "Enter MFA token for {}.".format(profile))
+                    "Enter MFA token for {}. ".format(profile))
                 # Check if input is num
                 if not input_num.isdecimal():
                     print("\nYou input {}. It's {}. Enter a number.\n".format(

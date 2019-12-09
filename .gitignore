@@ -199,3 +199,4 @@ fabric.properties
 aws.ini
 cp_to_home.sh
 operate_cfn.log*
+tmp_token
