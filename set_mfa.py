@@ -53,7 +53,8 @@ class AwsLogin:
     def __init__(self):
 
         # get a config file
-        self.Config.read(get_cfg())
+        with open(get_cfg()) as cfg:
+            self.Config.read_file(cfg)
         profile_section = self.ask_profile_section()
         profile = util_string.remove_quotes(
             self.Config.get(profile_section, "profile"))
