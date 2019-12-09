@@ -111,7 +111,7 @@ class AwsLogin:
                 # present profile number and name
                 for profile in profile_list:
                     print(str(profile_list.index(profile) + 1) + ") " + profile[len(str_profile) + 1:])
-                input_num = input("Input the number of the profile and ENTER.  ")
+                input_num = input("Enter the number of the profile.")
                 # Check if input is num
                 if not input_num.isdecimal():
                     print("\nYou input {}. It's {}. Enter a number.\n".format(input_num, type(input_num)))
@@ -131,7 +131,7 @@ class AwsLogin:
             is_number = False
             while not is_number:
                 input_num = input(
-                    "Input MFA token for {} and ENTER.  ".format(profile))
+                    "Enter MFA token for {}.".format(profile))
                 # Check if input is num
                 if not input_num.isdecimal():
                     print("\nYou input {}. It's {}. Enter a number.\n".format(
