@@ -5,6 +5,7 @@ import sys
 import configparser
 from logging import getLogger, StreamHandler, FileHandler, Formatter, DEBUG, INFO
 from logging.handlers import RotatingFileHandler
+import util_string
 
 ##################
 # configure logging
@@ -54,9 +55,11 @@ class AwsLogin:
         # get a config file
         self.Config.read(get_cfg())
         profile_section = self.ask_profile_section()
-        profile = self.Config.get(profile_section, "profile")
+        profile = util_string.remove_quotes(
+            self.Config.get(profile_section, "profile"))
         print("You use iam user {}".format(profile))
-        mfa = self.Config.get(profile_section, "mfa")
+        mfa_arn = util_string.remove_quotes(
+            self.Config.get(profile_section, "mfa"))
         mfa_token = self.ask_mfa_token(profile)
 
         # self.check_mfa()
